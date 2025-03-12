@@ -1,0 +1,6 @@
+# Ignore all directories
+*/
+
+# But keep specific files
+!*.py   # Keeps all Python files
+!*.md   # Keeps all Markdown files
