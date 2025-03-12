@@ -97,7 +97,6 @@ The image below (`preprocessed.png`) is an example of a processed image. Preproc
 
 ![Preprocessed Image](preprocessed.png)
 
-*Note: Replace `preprocessed.png` with the actual path to your sample preprocessed image if needed.*
 
 ## Dataset Splitting
 
