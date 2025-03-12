@@ -47,6 +47,32 @@ XML_CACHE_FILE = "annotation_counts.npy"
 MODEL_PATH = "./final_model_quantized.pth"
 TARGET_SIZE = (224, 224)
 
+import os
+import kagglehub
+
+# Configuration paths
+RAW_IMAGES_DIR = r"lego_dataset\dataset_20210629145407_top_600\images"
+PROCESSED_IMAGES_DIR = r"output"
+ANNOTATIONS_DIR = r"lego_dataset\dataset_20210629145407_top_600\annotations"
+OUTPUT_SPLIT_DIR = r"output_split"
+XML_CACHE_FILE = "annotation_counts.npy"
+MODEL_PATH = "./final_model_quantized.pth"
+TARGET_SIZE = (224, 224)
+
+# Check if RAW_IMAGES_DIR and ANNOTATIONS_DIR exist
+if not (os.path.exists(RAW_IMAGES_DIR) and os.path.exists(ANNOTATIONS_DIR)):
+    print("Raw images or annotation directory not found. Downloading dataset from Kaggle...")
+    path = kagglehub.dataset_download("dreamfactor/biggest-lego-dataset-600-parts")
+    print("Path to dataset files:", path)
+    # Optionally, you can update RAW_IMAGES_DIR and ANNOTATIONS_DIR based on the downloaded path.
+    # For example:
+    RAW_IMAGES_DIR = os.path.join(path, "images")
+    ANNOTATIONS_DIR = os.path.join(path, "annotations")
+else:
+    print("Raw images and annotation directories found.")
+
+
+
 # Mean shift parameters for image processing
 SPARAM1, SRANGE1 = 10, 30
 SPARAM2, SRANGE2 = 10, 40
