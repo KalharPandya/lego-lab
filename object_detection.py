@@ -46,6 +46,21 @@ ANNOTATION_CACHE_FILE = "annotation_bboxes.npy"
 MODEL_PATH = "./fasterrcnn_lego.pth"
 TARGET_SIZE = (224, 224)
 
+
+# Check if RAW_IMAGES_DIR and ANNOTATIONS_DIR exist
+if not (os.path.exists(RAW_IMAGES_DIR) and os.path.exists(ANNOTATIONS_DIR)):
+    print("Raw images or annotation directory not found. Downloading dataset from Kaggle...")
+    path = kagglehub.dataset_download("dreamfactor/biggest-lego-dataset-600-parts")
+    print("Path to dataset files:", path)
+    # Optionally, you can update RAW_IMAGES_DIR and ANNOTATIONS_DIR based on the downloaded path.
+    # For example:
+    RAW_IMAGES_DIR = os.path.join(path, "images")
+    ANNOTATIONS_DIR = os.path.join(path, "annotations")
+else:
+    print("Raw images and annotation directories found.")
+
+
+
 # Mean shift parameters for image processing
 SPARAM1, SRANGE1 = 10, 30
 SPARAM2, SRANGE2 = 10, 40
