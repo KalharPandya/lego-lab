@@ -340,9 +340,9 @@ def create_fasterrcnn_model(num_classes):
     num_classes includes the background class.
     """
     # Use a torchvision model with pretrained weights
-    model = models.detection.fasterrcnn_mobilenet_v3_large_fpn(weights='FasterRCNN_MobileNet_V3_Large_FPN_Weights.DEFAULT')
+    # model = models.detection.fasterrcnn_mobilenet_v3_ large_fpn(weights='FasterRCNN_MobileNet_V3_Large_FPN_Weights.DEFAULT')
 
-    # model = models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
+    model = models.detection.fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.DEFAULT)
     
     # Get the number of input features for the classifier
     in_features = model.roi_heads.box_predictor.cls_score.in_features
@@ -518,7 +518,7 @@ def main():
         print("Model loaded.")
     else:
         print("No existing model found; training from scratch...")
-        train_model(model, train_dataset, device, num_epochs=1, lr=0.001, batch_size=52)
+        train_model(model, train_dataset, device, num_epochs=1, lr=0.0001, batch_size=16)
     
     # Interactive prompt
     while True:
@@ -535,7 +535,7 @@ def main():
             except ValueError:
                 print("Invalid input. Please enter an integer.")
                 continue
-            train_model(model, train_dataset, device, num_epochs=additional_epochs, lr=0.001, batch_size=4)
+            train_model(model, train_dataset, device, num_epochs=additional_epochs, lr=0.0001, batch_size=16)
 
         elif choice == '2':
             user_in = input("Enter number of validation samples to evaluate (0 for all): ")
