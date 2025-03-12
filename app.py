@@ -103,4 +103,4 @@ iface = gr.Interface(
     article=evaluation_markdown
 )
 
-iface.launch(server_port=80)
+iface.launch(server_port=80, server_name="0.0.0.0")
