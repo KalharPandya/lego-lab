@@ -5,7 +5,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=20G
-#SBATCH --time=015:00:00
+#SBATCH --time=015:00:00                      # Time limit (hh:mm:ss)
+#SBATCH --partition=gpu                           # Specify the GPU partition
+#SBATCH --gres=gpu:v100:1                         # Request 1 V100 GPU
 
 module load anaconda3/2022.05  # Load the Anaconda module
 source activate vision            # Activate your conda environment
