@@ -518,7 +518,7 @@ def main():
         print("Model loaded.")
     else:
         print("No existing model found; training from scratch...")
-        train_model(model, train_dataset, device, num_epochs=10, lr=0.001, batch_size=52)
+        train_model(model, train_dataset, device, num_epochs=5, lr=0.001, batch_size=52)
     
     # Interactive prompt
         

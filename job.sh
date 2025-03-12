@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=20G
-#SBATCH --time=015:00:00                      # Time limit (hh:mm:ss)
+#SBATCH --time=06:00:00                      # Time limit (hh:mm:ss)
 #SBATCH --partition=gpu                           # Specify the GPU partition
 #SBATCH --gres=gpu:v100:1                         # Request 1 V100 GPU
 
