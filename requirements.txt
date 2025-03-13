@@ -6,3 +6,4 @@ opencv-python>=4.5.5.64
 matplotlib>=3.5.0
 scikit-learn>=1.0.2
 tqdm>=4.64.0
+kagglehub

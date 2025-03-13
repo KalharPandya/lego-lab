@@ -24,7 +24,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, models
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.metrics import (
@@ -91,46 +91,64 @@ def check_environment():
         print("No GPU detected.")
     print()
 
-# -------------------------------
-# Block 2: Image Processing & Caching
-# -------------------------------
+
+
+def process_and_save(image_path, output_dir, target_size=(224, 224)):
+    """
+    Reads an image, processes it (resize, HSV conversion, mean shift filtering),
+    and saves the output image to the output directory.
+    """
+    try:
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Warning: Unable to load {image_path}")
+            return None
+        # Resize image
+        resized = cv2.resize(image, target_size)
+        # Convert to HSV and apply mean shift filtering twice
+        image_hsv = cv2.cvtColor(resized, cv2.COLOR_BGR2HSV)
+        segmented = cv2.pyrMeanShiftFiltering(image_hsv, sp=SPARAM1, sr=SRANGE1)
+        segmented = cv2.pyrMeanShiftFiltering(segmented, sp=SPARAM2, sr=SRANGE2)
+        # Convert back to BGR
+        final_image = cv2.cvtColor(segmented, cv2.COLOR_HSV2BGR)
+        # Save processed image
+        output_path = os.path.join(output_dir, os.path.basename(image_path))
+        cv2.imwrite(output_path, final_image)
+        return output_path
+    except Exception as e:
+        print(f"Error processing {image_path}: {e}")
+        return None
+
 def process_images(raw_dir=RAW_IMAGES_DIR, output_dir=PROCESSED_IMAGES_DIR, target_size=TARGET_SIZE):
+    """
+    Processes images from raw_dir and saves them into output_dir.
+    If processed images already exist, skips processing.
+    Otherwise, processes images in parallel using 64 workers.
+    """
     os.makedirs(output_dir, exist_ok=True)
     processed_files = glob.glob(os.path.join(output_dir, "*.jpg"))
+    
     if processed_files:
         print(f"Processed images already exist in '{output_dir}' (found {len(processed_files)} files). Skipping processing.")
         return processed_files
     else:
         print("No processed images found. Processing raw images now...")
-
-        def process_and_save(image_path, output_dir, target_size=(224, 224)):
-            try:
-                image = cv2.imread(image_path)
-                if image is None:
-                    print(f"Warning: Unable to load {image_path}")
-                    return None
-                # Resize image
-                resized = cv2.resize(image, target_size)
-                # Convert to HSV and apply mean shift filtering twice
-                image_hsv = cv2.cvtColor(resized, cv2.COLOR_BGR2HSV)
-                segmented = cv2.pyrMeanShiftFiltering(image_hsv, sp=SPARAM1, sr=SRANGE1)
-                segmented = cv2.pyrMeanShiftFiltering(segmented, sp=SPARAM2, sr=SRANGE2)
-                # Convert back to BGR
-                final_image = cv2.cvtColor(segmented, cv2.COLOR_HSV2BGR)
-                # Save processed image
-                output_path = os.path.join(output_dir, os.path.basename(image_path))
-                cv2.imwrite(output_path, final_image)
-                return output_path
-            except Exception as e:
-                print(f"Error processing {image_path}: {e}")
-                return None
-
         raw_image_files = glob.glob(os.path.join(raw_dir, "*.jpg"))
-        for img_path in tqdm(raw_image_files, desc="Processing images", unit="file"):
-            process_and_save(img_path, output_dir, target_size=target_size)
+        processed_results = []
+        
+        with ProcessPoolExecutor(max_workers=61) as executor:
+            # Submit image processing tasks in parallel
+            futures = {executor.submit(process_and_save, img_path, output_dir, target_size): img_path 
+                       for img_path in raw_image_files}
+            # Iterate over completed tasks with progress tracking
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Processing images", unit="file"):
+                result = future.result()
+                processed_results.append(result)
+        
         processed_files = glob.glob(os.path.join(output_dir, "*.jpg"))
-        print(f"Processed and saved {len(processed_files)} images to '{output_dir}'\n")
+        tqdm.write(f"Processed and saved {len(processed_files)} images to '{output_dir}'\n")
         return processed_files
+
 
 # -------------------------------
 # Block 3: Dataset Splitting (Train/Val/Test)
@@ -195,7 +213,7 @@ def process_xml_annotations(annotations_dir=ANNOTATIONS_DIR, cache_file=XML_CACH
                 print(f"Error processing {xml_file}: {e}")
                 return None
         
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=64) as executor:
             futures = {executor.submit(parse_xml_file, xml_file): xml_file for xml_file in xml_files}
             for future in tqdm(as_completed(futures), total=len(futures), desc="Processing XML files"):
                 result = future.result()
@@ -483,8 +501,8 @@ def main():
         print("Trained model already exists. Loading model from checkpoint...")
         resnet.load_state_dict(torch.load(MODEL_PATH))
         resnet.eval()
-    else:
-        resnet = train_resnet(train_dir, annotation_counts, num_epochs=1, batch_size=256, learning_rate=1e-3)
+    # else:
+        # resnet = train_resnet(train_dir, annotation_counts, num_epochs=1, batch_size=256, learning_rate=1e-3)
     
     # Interactive loop for further training or evaluation
 
