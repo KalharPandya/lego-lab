@@ -1,0 +1,6 @@
+# lego.yaml
+train: C:/Users/pandya.kal/Documents/lego-lab/datasets/output_split/train/images
+val: C:/Users/pandya.kal/Documents/lego-lab/datasets/output_split/val/images
+test: C:/Users/pandya.kal/Documents/lego-lab/datasets/output_split/test/images  # optional
+nc: 1
+names: ['lego_piece']
