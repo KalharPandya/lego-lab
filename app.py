@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 # Global configuration
-MODEL_PATH = "./best.pt"
+MODEL_PATH = "./best_model.pt"
 
 # Preprocessing parameters
 SPARAM1, SRANGE1 = 10, 30
