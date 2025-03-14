@@ -120,4 +120,4 @@ iface = gr.Interface(
     description="Upload one or more images (JPG/PNG) to predict the number of LEGO pieces using a YOLO detection model. The images are preprocessed and annotated with bounding boxes.",
 )
 
-iface.launch(server_port=8080, server_name="localhost")
+iface.launch(server_port=7891, server_name="localhost")
