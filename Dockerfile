@@ -8,6 +8,13 @@ ENV LANG=C.UTF-8
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies for OpenCV and other libraries
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+
 # Copy requirements.txt and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -15,14 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application files into the container
 COPY . .
 
-# Expose ports on which your Gradio apps will run
-# e.g. 80 for app.py, 7890 for sticker.py
+# Expose ports for Gradio apps
 EXPOSE 80
 EXPOSE 7890
 
-# Run both servers in the same container
-# The '&' runs them in the background, and 'wait -n' ensures the container
-# terminates if either process exits with an error.
-CMD ["/bin/bash", "-c", "python app.py& \
-                         python sticker.py& \
-                         wait -n"]
+# Run both servers in parallel and keep the container alive
+CMD ["bash", "-c", "python app.py & python sticker.py & wait"]
