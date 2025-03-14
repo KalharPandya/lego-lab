@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose ports for Gradio apps
-EXPOSE 80
+EXPOSE 8080
 EXPOSE 7890
 
 # Run both servers in parallel and keep the container alive
