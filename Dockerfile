@@ -12,12 +12,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application files into the container,
-# including the final_model_quantized.pth file.
+# Copy the rest of the application files into the container
 COPY . .
 
-# Expose the port on which Gradio will run (default is 7860)
+# Expose ports on which your Gradio apps will run
+# e.g. 80 for app.py, 7890 for sticker.py
 EXPOSE 80
+EXPOSE 7890
 
-# Command to run the Gradio app
-CMD ["python", "app.py"]
+# Run both servers in the same container
+# The '&' runs them in the background, and 'wait -n' ensures the container
+# terminates if either process exits with an error.
+CMD ["/bin/bash", "-c", "python app.py& \
+                         python sticker.py& \
+                         wait -n"]
