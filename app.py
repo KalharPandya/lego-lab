@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 # Global configuration
-MODEL_PATH = "./runs/detect/train/weights/best.pt"
+MODEL_PATH = "./best.pt"
 
 # Preprocessing parameters
 SPARAM1, SRANGE1 = 10, 30
