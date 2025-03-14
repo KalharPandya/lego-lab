@@ -8,3 +8,5 @@ scikit-learn>=1.0.2
 tqdm>=4.64.0
 kagglehub
 ultralytics
+numpy
+pandas
