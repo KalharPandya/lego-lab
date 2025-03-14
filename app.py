@@ -63,7 +63,7 @@ def predict_lego_count(images):
         preprocessed_img = preprocess_image(img)  # your preprocessing function
         
         # Run YOLO detection on the preprocessed image
-        results = model(preprocessed_img)
+        results = model(preprocessed_img, imgsz=224)
         if results and len(results) > 0:
             # Get normalized detection boxes (xyxy format, values between 0 and 1)
             boxes = results[0].boxes.xyxy.cpu().numpy()  # shape: (N, 4)

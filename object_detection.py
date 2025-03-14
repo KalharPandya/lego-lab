@@ -38,7 +38,7 @@ PROCESSED_IMAGES_DIR = r"output"
 ANNOTATIONS_DIR = r"lego_dataset\dataset_20210629145407_top_600\annotations"
 # Updated split folder structure under a 'datasets' folder
 OUTPUT_SPLIT_DIR = r"datasets/output_split"
-MODEL_PATH = "./yolo11_lego.pt"  # save YOLO checkpoint here
+MODEL_PATH = "./best.pt"  # save YOLO checkpoint here
 TARGET_SIZE = (224, 224)
 
 # Create necessary directories if they don’t exist
@@ -61,8 +61,6 @@ if not os.listdir(RAW_IMAGES_DIR) or not os.listdir(ANNOTATIONS_DIR):
         for file in os.listdir(source_annotations):
             shutil.copy(os.path.join(source_annotations, file), ANNOTATIONS_DIR)
     print("Dataset copied successfully!")
-else:
-    print("Raw images and annotation directories already contain data.")
 
 # Mean shift parameters for image processing
 SPARAM1, SRANGE1 = 10, 30
@@ -322,12 +320,12 @@ def create_yolo_model(num_classes, variant="x"):
 # -------------------------------
 # Block 8: YOLO Training and Evaluation (Using Ultralytics API)
 # -------------------------------
-def train_model_yolo(model, data_yaml, epochs=10, imgsz=640, device="cpu", resume=False):
+def train_model_yolo(model, data_yaml, epochs=10, imgsz=224, device="cpu", resume=False):
     results = model.train(data=data_yaml, epochs=epochs, imgsz=imgsz, device=device, resume=resume)
     return results
 
-def evaluate_model_yolo(model, data_yaml, device="cpu"):
-    results = model.val(data=data_yaml, device=device)
+def evaluate_model_yolo(model, data_yaml, device="cpu", split="val"):
+    results = model.val(data=data_yaml, device=device, split=split, imgsz=224)
     return results
 
 # -------------------------------
@@ -338,10 +336,10 @@ def main():
     # Uncomment the following if you need to process and split images and generate labels:
     # process_images()
     # split_dataset()
-    annotation_dict = build_annotation_dict(ANNOTATIONS_DIR)
-    for split in ['train', 'val', 'test']:
-        split_folder = os.path.join(OUTPUT_SPLIT_DIR, split)
-        generate_yolo_labels_for_split(split_folder, annotation_dict)
+    # annotation_dict = build_annotation_dict(ANNOTATIONS_DIR)
+    # for split in ['train', 'val', 'test']:
+    #     split_folder = os.path.join(OUTPUT_SPLIT_DIR, split)
+    #     generate_yolo_labels_for_split(split_folder, annotation_dict)
     
     # Update DATA_YAML path to point to your dataset YAML file (with absolute paths).
     DATA_YAML = "lego.yaml"  # Ensure this YAML file is correctly configured.
@@ -356,7 +354,7 @@ def main():
         print("Model loaded.")
     else:
         print("No existing model found; training from scratch...")
-        train_model_yolo(model, DATA_YAML, epochs=3, imgsz=640, device=device)
+        train_model_yolo(model, DATA_YAML, epochs=3, imgsz=224, device=device)
         model.save(MODEL_PATH)
     
     while True:
@@ -373,18 +371,18 @@ def main():
                 print("Invalid input. Please enter an integer.")
                 continue
             try:
-                train_model_yolo(model, DATA_YAML, epochs=additional_epochs, imgsz=640, device=device, resume=True)
+                train_model_yolo(model, DATA_YAML, epochs=additional_epochs, imgsz=224, device=device, resume=True)
             except AssertionError as e:
                 if "nothing to resume" in str(e):
                     print("Checkpoint indicates training is finished. Starting new training session without resume...")
-                    train_model_yolo(model, DATA_YAML, epochs=additional_epochs, imgsz=640, device=device, resume=False)
+                    train_model_yolo(model, DATA_YAML, epochs=additional_epochs, imgsz=224, device=device, resume=False)
                 else:
                     raise
             model.save(MODEL_PATH)
         elif choice == '2':
-            evaluate_model_yolo(model, DATA_YAML, device=device)
+            evaluate_model_yolo(model, DATA_YAML, device=device, split="val")
         elif choice == '3':
-            evaluate_model_yolo(model, DATA_YAML, device=device)
+            evaluate_model_yolo(model, DATA_YAML, device=device, split="test")
         elif choice == '4':
             print("Exiting.")
             break
