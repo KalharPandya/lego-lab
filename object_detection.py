@@ -26,8 +26,8 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 import matplotlib.pyplot as plt
 from PIL import Image
 import kagglehub
-from ultralytics import YOLO
 
+from ultralytics import YOLO
 torch.cuda.empty_cache()
 
 # -------------------------------
@@ -313,7 +313,7 @@ def generate_yolo_labels_for_split(split_folder, annotation_dict, target_size=TA
 # Block 7: YOLO Model Creation using YOLO11 Train Mode
 # -------------------------------
 def create_yolo_model(num_classes, variant="x"):
-    model_name = f"yolo11{variant}.pt"
+    model_name = "./best.pt"
     model = YOLO(model_name)
     if hasattr(model.model, 'yaml'):
         model.model.yaml['nc'] = num_classes
@@ -323,7 +323,7 @@ def create_yolo_model(num_classes, variant="x"):
 # Block 8: YOLO Training and Evaluation (Using Ultralytics API)
 # -------------------------------
 def train_model_yolo(model, data_yaml, epochs=10, imgsz=640, device="cpu", resume=False):
-    results = model.train(data=data_yaml, epochs=epochs, imgsz=imgsz, device=device, resume=resume)
+    results = model.train(data=data_yaml, epochs=epochs, imgsz=imgsz, device=device, resume=resume, save_period=1)
     return results
 
 def evaluate_model_yolo(model, data_yaml, device="cpu"):
@@ -338,10 +338,10 @@ def main():
     # Uncomment the following if you need to process and split images and generate labels:
     # process_images()
     # split_dataset()
-    annotation_dict = build_annotation_dict(ANNOTATIONS_DIR)
-    for split in ['train', 'val', 'test']:
-        split_folder = os.path.join(OUTPUT_SPLIT_DIR, split)
-        generate_yolo_labels_for_split(split_folder, annotation_dict)
+    # annotation_dict = build_annotation_dict(ANNOTATIONS_DIR)
+    # for split in ['train', 'val', 'test']:
+    #     split_folder = os.path.join(OUTPUT_SPLIT_DIR, split)
+    #     generate_yolo_labels_for_split(split_folder, annotation_dict)
     
     # Update DATA_YAML path to point to your dataset YAML file (with absolute paths).
     DATA_YAML = "lego.yaml"  # Ensure this YAML file is correctly configured.
