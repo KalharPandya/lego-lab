@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.12.3
 
 # Set environment variables to prevent Python buffering and enable UTF-8
 ENV PYTHONUNBUFFERED=1
